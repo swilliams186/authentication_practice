@@ -18,5 +18,11 @@ exports.decrypt = function(base64String) {
     return deciphered.toString("utf8");
 }
 
+exports.hash = function(stringToHash){
+    const hash = crypto.createHash("sha256");
+    hash.update(stringToHash);
+    const hashedText = hash.digest("utf8");
+    return hashedText;
+}
 
 

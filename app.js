@@ -41,7 +41,8 @@ app.post("/login", async function(req, res){
     const result = await db.getUser(username);
     console.log(result);
 
-    if(result.length > 0 && crypto.decrypt(result[0].password) == password){
+    // if(result.length > 0 && crypto.decrypt(result[0].password) == password){
+    if(result.length > 0 && result[0].password == crypto.hash(password)){
         res.render("secrets");     
     }else{
         if (result.length == 0){
@@ -67,8 +68,10 @@ app.post("/register", async function(req, res){
     const password = req.body.password;
     statusText = "";
     if(!await db.userExists(username)){
-        db.addUser(username, crypto.encrypt(password));
-        console.log("Adding: " + crypto.encrypt(password));
+        // db.addUser(username, crypto.encrypt(password));
+        // console.log("Adding: " + crypto.encrypt(password));
+        db.addUser(username, crypto.hash(password));
+        console.log("Added hash: " + crypto.hash(password));
     }else{
         statusText = "Username already exists";
     }
