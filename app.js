@@ -5,6 +5,7 @@ const ejs = require ("ejs");
 const db = require(__dirname+ "/mongoDB.js")
 const app = express();
 const crypto = require(__dirname+"/encryption.js")
+const bcrypt = require("bcrypt");
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({
@@ -41,8 +42,10 @@ app.post("/login", async function(req, res){
     const result = await db.getUser(username);
     console.log(result);
 
-    // if(result.length > 0 && crypto.decrypt(result[0].password) == password){
-    if(result.length > 0 && result[0].password == crypto.hash(password)){
+    
+    //if(result.length > 0 && crypto.decrypt(result[0].password) == password){ //AES
+    //if(result.length > 0 && result[0].password == crypto.hash(password)){   //SHA
+    if(result.length > 0 && await crypto.checkSaltedHash(password, result[0].password)){
         res.render("secrets");     
     }else{
         if (result.length == 0){
@@ -68,10 +71,12 @@ app.post("/register", async function(req, res){
     const password = req.body.password;
     statusText = "";
     if(!await db.userExists(username)){
-        // db.addUser(username, crypto.encrypt(password));
-        // console.log("Adding: " + crypto.encrypt(password));
-        db.addUser(username, crypto.hash(password));
-        console.log("Added hash: " + crypto.hash(password));
+
+        const hashed = await crypto.hashWithSaltRounds(password)
+            
+
+        db.addUser(username, hashed);
+
     }else{
         statusText = "Username already exists";
     }
