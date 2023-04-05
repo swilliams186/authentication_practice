@@ -2,10 +2,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require ("ejs");
-const db = require(__dirname+ "/mongoDB.js")
+const db = require(__dirname+ "/mongoose.js")
 const app = express();
 const crypto = require(__dirname+"/encryption.js")
-const bcrypt = require("bcrypt");
+
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({
@@ -15,17 +15,11 @@ app.use(bodyParser.urlencoded({
 
 app.listen(3000, function(){
     console.log("Server started on port 3000");
-    db.connect("secrets", "users");
 });
 
 //HOME RENDER
 app.get("/", function(req, res){
     res.render("home");
-    string = "Welcome puidding";
-    encString = crypto.encrypt(string);
-    console.log("HOME ENC: "+ encString );
-    decString = crypto.decrypt(encString);
-    console.log("HOME DEC: " + decString);
 });
 
 app.get("/login", function(req, res){
@@ -40,7 +34,6 @@ app.post("/login", async function(req, res){
     statusText = "";
 
     const result = await db.getUser(username);
-    console.log(result);
 
     
     //if(result.length > 0 && crypto.decrypt(result[0].password) == password){ //AES
